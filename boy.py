@@ -29,6 +29,8 @@ def left_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
 
 
+def a_down(e):
+    return e[0] == 'INPUT' and SDL_KEYDOWN and e[1].key == ord('a')
 class AutoRun:
 
     @staticmethod
@@ -44,6 +46,7 @@ class AutoRun:
 
     @staticmethod
     def do(boy):
+        boy.speed += 0.08
         boy.frame = (boy.frame + 1) % 8
 
         if (boy.x > 780):
@@ -60,7 +63,7 @@ class AutoRun:
     @staticmethod
     def draw(boy):
         boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100,
-                            boy.x, boy.y)
+                            boy.x, boy.y+30, 200, 200)
         pass
 
 
@@ -68,7 +71,6 @@ class Idle:
 
     @staticmethod
     def enter(boy, e):
-        print('Idle Enter - 고개숙이기')
         if boy.action == 0:
             boy.action = 2
         elif boy.action == 1:
@@ -79,14 +81,14 @@ class Idle:
 
     @staticmethod
     def exit(boy, e):
-        print('Idle Exit - 고개 들기')
+        pass
 
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
         if get_time() - boy.idle_start_time > 3:
             boy.state_machine.handle_event(('TIME_OUT', 0))
-        print('드르렁')
+
 
     @staticmethod
     def draw(boy):
@@ -149,12 +151,12 @@ class Run:
 
 class StateMachine:
     def __init__(self, boy):
-        self.cur_state = AutoRun
+        self.cur_state = Idle
         self.boy = boy
         self.transitions = {
-            Sleep: {space_down: Idle, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Idle: {time_out: Sleep, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Run: {space_down: Idle, right_down: Run, left_down: Run, right_up: Idle, left_up: Idle},
+            Sleep: {space_down: Idle, right_down: Run, left_down: Run, right_up: Run, left_up: Run, a_down: AutoRun},
+            Idle: {time_out: Sleep, right_down: Run, left_down: Run, right_up: Run, left_up: Run, a_down: AutoRun},
+            Run: {space_down: Idle, right_down: Run, left_down: Run, right_up: Idle, left_up: Idle, a_down: AutoRun},
             AutoRun: {time_out: Idle}
         }
 
