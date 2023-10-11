@@ -29,6 +29,41 @@ def left_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
 
 
+class AutoRun:
+
+    @staticmethod
+    def enter(boy, e):
+        boy.dir = 1
+        boy.action = 1
+        boy.speed = 10
+        boy.autorun_start_time = get_time()
+
+    @staticmethod
+    def exit(boy, e):
+        boy.speed = 5
+
+    @staticmethod
+    def do(boy):
+        boy.frame = (boy.frame + 1) % 8
+
+        if (boy.x > 780):
+            boy.dir = -1
+            boy.action = 0
+        elif (boy.x < 10):
+            boy.dir = 1
+            boy.action = 1
+        boy.x += boy.dir * boy.speed
+
+        if get_time() - boy.autorun_start_time > 5:
+            boy.state_machine.handle_event(('TIME_OUT', 0))
+
+    @staticmethod
+    def draw(boy):
+        boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100,
+                            boy.x, boy.y)
+        pass
+
+
 class Idle:
 
     @staticmethod
@@ -114,12 +149,13 @@ class Run:
 
 class StateMachine:
     def __init__(self, boy):
-        self.cur_state = Idle
+        self.cur_state = AutoRun
         self.boy = boy
         self.transitions = {
             Sleep: {space_down: Idle, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
             Idle: {time_out: Sleep, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Run: {space_down: Idle, right_down: Run, left_down: Run, right_up: Idle, left_up: Idle}
+            Run: {space_down: Idle, right_down: Run, left_down: Run, right_up: Idle, left_up: Idle},
+            AutoRun: {time_out: Idle}
         }
 
     def start(self):
