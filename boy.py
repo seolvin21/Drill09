@@ -56,6 +56,7 @@ class AutoRun:
             boy.action = 1
         boy.x += boy.dir * boy.speed
 
+        # 5초 경과하면
         if get_time() - boy.autorun_start_time > 5:
             boy.state_machine.handle_event(('TIME_OUT', 0))
 
