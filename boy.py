@@ -37,7 +37,7 @@ class AutoRun:
     def enter(boy, e):
         boy.dir = 1
         boy.action = 1
-        boy.speed = 10
+        boy.speed = 20
         boy.autorun_start_time = get_time()
 
     @staticmethod
@@ -46,7 +46,6 @@ class AutoRun:
 
     @staticmethod
     def do(boy):
-        boy.speed += 0.08
         boy.frame = (boy.frame + 1) % 8
 
         if (boy.x > 780):
